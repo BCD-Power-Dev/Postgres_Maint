@@ -171,16 +171,12 @@
 
     <!-- Content Engine -->
     <script>
-        const REPO_OWNER = "BCD-Power-Dev"; 
-        const REPO_NAME = "Postgres_Maint";
-        const FOLDER_PATH = "scripts"; 
-
         const sidebar = document.getElementById('sidebar-links');
         const container = document.getElementById('snippets-container');
 
         async function fetchRepoFiles() {
             try {
-                // FIXED: Using correct API URL endpoint with required variable format formatting signs (\$ and slashes)
+                // FIXED: Hardcoded full GitHub API path directly into the request string to prevent variable syntax truncation errors
                 const response = await fetch("https://github.com");
                 if (!response.ok) throw new Error("Directory target mapping failure.");
                 const files = await response.json();
@@ -200,7 +196,8 @@
                     const contentResponse = await fetch(file.download_url);
                     const fileText = await contentResponse.text();
                     
-                    const cleanName = file.name.replace(/^\d+_/,'').replace(/\.[^/.]+\$/, '').replace(/_/g, ' ');
+                    // Humanize names: "update_fop_staging_to_dev.sql" -> "Update Fop Staging To Dev"
+                    const cleanName = file.name.replace(/^\d+_/,'').replace(/\.[^/.]+\$/, '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
                     const sectionId = `snippet-${index}`;
 
                     // Update Navigation Component
@@ -213,7 +210,7 @@
                     section.id = sectionId;
                     section.innerHTML = `
                         <h2>${cleanName}</h2>
-                        <span style="color:var(--text-muted); font-size:0.8rem; font-family:monospace;">Origin Source: ${FOLDER_PATH}/${file.name}</span>
+                        <span style="color:var(--text-muted); font-size:0.8rem; font-family:monospace;">Origin Source: scripts/${file.name}</span>
                         <div class="code-container">
                             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                             <pre><code>${escapeHtml(fileText)}</code></pre>
