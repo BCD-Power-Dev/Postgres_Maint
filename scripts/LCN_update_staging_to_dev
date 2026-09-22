@@ -1,0 +1,83 @@
+WITH src AS (
+    SELECT *
+    FROM public.lcn_staging
+),
+skipped AS (
+    SELECT
+        s.tspm_number,
+        s.lcn_number,
+        s.smid
+    FROM src s
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM public.lcn t
+        WHERE t.tspm_number = s.tspm_number
+    )
+),
+upd AS (
+    UPDATE public.lcn AS target
+    SET
+        lcn_number = staging.lcn_number,
+        lcn_name = staging.lcn_name,
+        gcn = staging.gcn,
+        smid = staging.smid,
+        smid_country = staging.smid_country,
+        smid_cliq_id = staging.smid_cliq_id,
+        smid_cliqservice_id = staging.smid_cliqservice_id,
+        classification = staging.classification,
+        s_code = staging.s_code,
+        status = staging.status,
+        service_until_date = staging.service_until_date,
+        last_date_of_service_new_bookings = staging.last_date_of_service_new_bookings,
+        last_date_of_service_booking_changes = staging.last_date_of_service_booking_changes,
+        account_status = staging.account_status,
+        smid_country_a2 = staging.smid_country_a2,
+        point_of_sale_tool = staging.point_of_sale,
+        ndc = staging.ndc,
+        trip_authorizer = staging.trip_authorizer,
+        apa = staging.apa,
+        hpa = staging.hpa,
+        region_of_service = staging.region_of_service,
+        country_of_service = staging.country_of_service,
+        bcd_team = staging.bcd_team,
+        time_zone = staging.time_zone,
+        ess_setup = staging.ess_setup,
+        daytime_ops_hours = staging.daytime_ops_hours,
+        obt = staging.obt,
+        trav_profile_format = staging.trav_profile_format,
+        gds = staging.gds,
+        gds_id = staging.gds_id,
+        obt_id = staging.obt_id,
+        mon_doh = staging.mon_doh,
+        tue_doh = staging.tue_doh,
+        wed_doh = staging.wed_doh,
+        thur_doh = staging.thur_doh,
+        fri_doh = staging.fri_doh,
+        sat_doh = staging.sat_doh,
+        sun_doh = staging.sun_doh,
+        gds_profile_name = staging.gds_profile_name,
+        ops_region = staging.ops_region,
+        sql_id = staging.sql_id,
+        back_office_1 = staging.back_office_1,
+        dk_number = staging.dk_number,
+        account_type = staging.account_type,
+        uploaded = staging.uploaded,
+        l1_profile = staging.l1_profile,
+        l2_profile = staging.l2_profile,
+        concur_approval = staging.concur_approval,
+        hr_feed = staging.hr_feed,
+        hr_frequency = staging.hr_frequency,
+        einvoice_portal = staging.einvoice_portal,
+        e_invoice_portal_locatoin = staging.e_invoice_portal_locatoin
+    FROM src AS staging
+    WHERE target.tspm_number = staging.tspm_number
+    RETURNING target.tspm_number
+)
+SELECT
+    (SELECT COUNT(*) FROM src) AS staging_rows,
+    (SELECT COUNT(*) FROM upd) AS updated_rows,
+    (SELECT COUNT(*) FROM skipped) AS skipped_rows,
+    (
+        SELECT string_agg(tspm_number::text, ', ' ORDER BY tspm_number)
+        FROM skipped
+    ) AS skipped_tspm_numbers;
