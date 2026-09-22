@@ -1,0 +1,149 @@
+WITH src AS (
+    SELECT *
+    FROM public.lcn_staging
+),
+skipped AS (
+    SELECT
+        s.lcn_number,
+        s.smid
+    FROM src s
+    WHERE EXISTS (
+        SELECT 1
+        FROM public.lcn t
+        WHERE t.lcn_number = s.lcn_number
+    )
+),
+ins AS (
+    INSERT INTO public.lcn (
+        lcn_number,
+        lcn_name,
+        account_id,
+        gcn,
+        smid_id,
+        smid,
+        smid_country,
+        traveler_country,
+        ticketing_country,
+        servicing_country,
+        invoicing_country,
+        classification,
+        s_code,
+        status,
+        service_until_date,
+        last_date_of_service_new_bookings,
+        last_date_of_service_booking_changes,
+        account_status,
+        smid_country_a2,
+        tspm_number,
+        point_of_sale_tool,
+        ndc,
+        trip_authorizer,
+        apa,
+        hpa,
+        region_of_service,
+        country_of_service,
+        bcd_team,
+        time_zone,
+        ess_setup,
+        daytime_ops_hours,
+        obt,
+        trav_profile_format,
+        gds,
+        gds_id,
+        obt_id,
+        mon_doh,
+        tue_doh,
+        wed_doh,
+        thur_doh,
+        fri_doh,
+        sat_doh,
+        sun_doh,
+        gds_profile_name,
+        ops_region,
+        sql_id,
+        back_office_1,
+        dk_number,
+        account_type,
+        uploaded,
+        l1_profile,
+        l2_profile,
+        concur_approval,
+        hr_feed,
+        hr_frequency,
+        einvoice_portal,
+        e_invoice_portal_locatoin
+    )
+    SELECT
+        lcn_number,
+        lcn_name,
+        account_id,
+        gcn,
+        smid_id,
+        smid,
+        smid_country,
+        traveler_country,
+        ticketing_country,
+        servicing_country,
+        invoicing_country,
+        classification,
+        s_code,
+        status,
+        service_until_date,
+        last_date_of_service_new_bookings,
+        last_date_of_service_booking_changes,
+        account_status,
+        smid_country_a2,
+        tspm_number,
+        point_of_sale_tool,
+        ndc,
+        trip_authorizer,
+        apa,
+        hpa,
+        region_of_service,
+        country_of_service,
+        bcd_team,
+        time_zone,
+        ess_setup,
+        daytime_ops_hours,
+        obt,
+        trav_profile_format,
+        gds,
+        gds_id,
+        obt_id,
+        mon_doh,
+        tue_doh,
+        wed_doh,
+        thur_doh,
+        fri_doh,
+        sat_doh,
+        sun_doh,
+        gds_profile_name,
+        ops_region,
+        sql_id,
+        back_office_1,
+        dk_number,
+        account_type,
+        uploaded,
+        l1_profile,
+        l2_profile,
+        concur_approval,
+        hr_feed,
+        hr_frequency,
+        einvoice_portal,
+        e_invoice_portal_locatoin
+    FROM src s
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM public.lcn t
+        WHERE t.lcn_number = s.lcn_number
+    )
+    RETURNING lcn_number
+)
+SELECT
+    (SELECT COUNT(*) FROM src) AS staging_rows,
+    (SELECT COUNT(*) FROM ins) AS inserted_rows,
+    (SELECT COUNT(*) FROM skipped) AS skipped_rows,
+    (
+        SELECT string_agg(lcn_number::text, ', ' ORDER BY lcn_number)
+        FROM skipped
+    ) AS skipped_lcns;
