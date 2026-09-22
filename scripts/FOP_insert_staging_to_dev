@@ -1,0 +1,55 @@
+WITH src AS (
+    SELECT *
+    FROM public.form_of_payment_staging
+),
+skipped AS (
+	SELECT
+	s.lcn,
+	s.smid
+	FROM src s
+	WHERE EXISTS (
+		SELECT 1
+		FROM public.form_of_payment t
+		WHERE t.lcn = s.lcn
+	)
+),
+ins AS (
+    INSERT INTO public.form_of_payment (
+        gcn,
+        account_id,
+        smid,
+        smid_id,
+        lcn,
+        lcn_id,
+        air,
+        hotel,
+        car,
+        rail,
+        other,
+        non_gds_carriers,
+        non_profiled,
+        traveler_type,
+        notes,
+        payment_summary,
+        traveler_type_id,
+        last_updated,
+        updated_by,
+        category,
+        summary
+    )
+    SELECT *
+    FROM public.form_of_payment_staging s
+    WHERE NOT EXISTS (
+		SELECT 1
+		FROM public.form_of_payment t
+		WHERE t.lcn = s.lcn
+		)	
+	)
+SELECT
+	(SELECT COUNT(*) FROM src) AS staging_rows,
+	(SELECT COUNT(*) FROM ins) AS inserted_rows,
+	(SELECT COUNT(*) FROM skipped) AS skipped_rows,
+		(
+		SELECT string_agg(lcn::text, ', ' ORDER BY lcn)
+		FROM skipped
+		) AS skipped_lcns;
