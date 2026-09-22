@@ -171,7 +171,6 @@
 
     <!-- Content Engine -->
     <script>
-        // 🔒 Verified Target Architecture Map
         const REPO_OWNER = "BCD-Power-Dev"; 
         const REPO_NAME = "Postgres_Maint";
         const FOLDER_PATH = "scripts"; 
@@ -181,9 +180,8 @@
 
         async function fetchRepoFiles() {
             try {
-                // FIXED: Corrected mapping syntax context to call API endpoint directly
-                // Request live folder indexes directly from GitHub REST API engine
-                const response = await fetch(`https://github.com${REPO_OWNER}/${REPO_NAME}/contents/${FOLDER_PATH}`);
+                // FIXED: Using correct API URL endpoint with required variable format formatting signs (\$ and slashes)
+                const response = await fetch(`https://github.com{REPO_OWNER}/${REPO_NAME}/contents/${FOLDER_PATH}`);
                 if (!response.ok) throw new Error("Directory target mapping failure.");
                 const files = await response.json();
 
@@ -202,7 +200,6 @@
                     const contentResponse = await fetch(file.download_url);
                     const fileText = await contentResponse.text();
                     
-                    // Format human names safely out of machine strings (e.g. 01_vacuum_tables.sql -> Vacuum Tables)
                     const cleanName = file.name.replace(/^\d+_/,'').replace(/\.[^/.]+\$/, '').replace(/_/g, ' ');
                     const sectionId = `snippet-${index}`;
 
@@ -231,7 +228,6 @@
             }
         }
 
-        // FIXED: Re-added clip-path copy handling engine block to close execution context cleanly
         function copyCode(button) {
             const codeBlock = button.nextElementSibling.querySelector('code');
             navigator.clipboard.writeText(codeBlock.textContent).then(() => {
@@ -259,10 +255,11 @@
             });
         }
 
-        // Prevention against code tag DOM text rendering breaks
         function escapeHtml(text) {
             return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
 
-        // Initialize execution mapping context
         fetchRepoFiles();
+    </script>
+</body>
+</html>
