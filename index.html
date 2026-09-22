@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostgreSQL Maintenance Guide</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --sidebar-bg: #ffffff;
+            --accent-color: #0066cc;
+            --code-bg: #1e1e1e;
+            --border-color: #e9ecef;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        /* Sidebar Navigation */
+        nav {
+            width: 260px;
+            height: 100vh;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        nav h2 { font-size: 1.1rem; margin-top: 0; color: #6c757d; text-transform: uppercase; letter-spacing: 1px; }
+        nav ul { list-style: none; padding: 0; margin: 0; }
+        nav li { margin-bottom: 10px; }
+        nav a { text-decoration: none; color: var(--text-color); font-size: 0.95rem; }
+        nav a:hover { color: var(--accent-color); }
+        
+        /* Main Content Container */
+        main {
+            margin-left: 260px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        h1 { border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-top: 0; }
+        section { margin-bottom: 50px; scroll-margin-top: 40px; }
+        
+        /* Code Box and Copy Button */
+        .code-container {
+            position: relative;
+            background: var(--code-bg);
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        pre {
+            margin: 0;
+            padding: 16px;
+            overflow-x: auto;
+            color: #d4d4d4;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 0.9rem;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .copy-btn:hover { background: var(--accent-color); border-color: var(--accent-color); }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <nav>
+        <h2>Maintenance</h2>
+        <ul>
+            <li><a href="#vacuum">1. Vacuum & Cleanup</a></li>
+            <li><a href="#sizes">2. Check Table Sizes</a></li>
+            <li><a href="#connections">3. Active Connections</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        <h1>PostgreSQL Maintenance Snippets</h1>
+        <p>Select a script from the sidebar, then click "Copy" to save it to your clipboard.</p>
+
+        <!-- Section 1 -->
+        <section id="vacuum">
+            <h2>1. Vacuum & Cleanup</h2>
+            <p>Removes dead tuples, reclaims storage, and updates planner statistics.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code>VACUUM ANALYZE;</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 2 -->
+        <section id="sizes">
+            <h2>2. Check Table Sizes</h2>
+            <p>Displays total disk space usage for all user tables including their indexes.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code>SELECT relname AS "Table", 
+       pg_size_pretty(pg_total_relation_size(relid)) AS "Size"
+FROM pg_catalog.pg_statio_user_tables
+ORDER BY pg_total_relation_size(relid) DESC;</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 3 -->
+        <section id="connections">
+            <h2>3. Active Connections</h2>
+            <p>Lists all currently running sessions and queries execution states.</p>
+            <div class="code-container">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code>SELECT pid, usename, client_addr, state, query 
+FROM pg_stat_activity 
+WHERE state != 'idle';</code></pre>
+            </div>
+        </section>
+    </main>
+
+    <!-- Copy Functionality JavaScript -->
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling.querySelector('code');
+            const textToCopy = codeBlock.textContent;
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                button.textContent = "Copied!";
+                button.style.background = "#28a745"; // green success color
+                
+                setTimeout(() => {
+                    button.textContent = "Copy";
+                    button.style.background = ""; // revert to CSS styles
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+    </script>
+
+</body>
+</html>
