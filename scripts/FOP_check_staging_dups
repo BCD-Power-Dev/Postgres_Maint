@@ -1,0 +1,8 @@
+-- search for duplicates in staging if needed
+SELECT
+lcn,
+COUNT(*) AS cnt
+FROM public.form_of_payment_staging
+GROUP BY lcn
+HAVING COUNT(*) > 1
+ORDER BY cnt DESC;
