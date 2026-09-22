@@ -230,13 +230,15 @@
             }
         }
 
-        // Clip-path handling engine 
+                // Clip-path handling engine 
         function copyCode(button) {
             const codeBlock = button.nextElementSibling.querySelector('code');
+            
+            // Fixed the direct var() evaluation crash here
             navigator.clipboard.writeText(codeBlock.textContent).then(() => {
                 button.textContent = "✔ Copied!";
-                button.style.backgroundColor = var(--success);
-                button.style.borderColor = var(--success);
+                button.style.backgroundColor = "#238636"; // Hardcoded hex color to prevent JS evaluation crash
+                button.style.borderColor = "#238636";
                 button.style.color = "#ffffff";
                 setTimeout(() => { 
                     button.textContent = "Copy"; 
@@ -244,8 +246,21 @@
                     button.style.borderColor = "";
                     button.style.color = "";
                 }, 1800);
+            }).catch(err => {
+                // Fallback copy execution block if secure origin rules block api access
+                const textarea = document.createElement('textarea');
+                textarea.value = codeBlock.textContent;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                button.textContent = "✔ Copied!";
+                button.style.backgroundColor = "#238636";
+                setTimeout(() => { button.textContent = "Copy"; button.style.backgroundColor = ""; }, 1800);
             });
         }
+
 
         // Prevention against code tag DOM text rendering breaks
         function escapeHtml(text) {
