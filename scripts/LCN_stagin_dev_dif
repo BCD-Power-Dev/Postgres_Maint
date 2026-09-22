@@ -1,0 +1,10 @@
+SELECT
+    s.lcn_number,
+    s.tspm_number,
+    s.lcn_name
+FROM public.lcn_staging s
+LEFT JOIN public.lcn l
+    ON l.lcn_number = s.lcn_number
+   AND l.tspm_number = s.tspm_number
+WHERE l.id IS NULL
+ORDER BY s.lcn_number;
