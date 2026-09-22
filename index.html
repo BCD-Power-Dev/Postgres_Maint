@@ -181,7 +181,7 @@
         async function fetchRepoFiles() {
             try {
                 // FIXED: Using correct API URL endpoint with required variable format formatting signs (\$ and slashes)
-                const response = await fetch(`https://github.com/BCD-Power-Dev/Postgres_Maint/contents/scripts`);
+                const response = await fetch("https://github.com");
                 if (!response.ok) throw new Error("Directory target mapping failure.");
                 const files = await response.json();
 
