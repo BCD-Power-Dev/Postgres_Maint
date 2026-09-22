@@ -177,7 +177,7 @@
         async function fetchRepoFiles() {
             try {
                 // FIXED: Direct plain text connection link targeting the unblocked data API channel
-                const response = await fetch("https://github.com");
+                const response = await fetch("https://api.github.com/repos/BCD-Power-Dev/Postgres_Maint/contents/scripts");
                 if (!response.ok) throw new Error("Directory target mapping failure.");
                 const files = await response.json();
 
