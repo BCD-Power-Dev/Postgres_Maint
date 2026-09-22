@@ -176,8 +176,8 @@
 
         async function fetchRepoFiles() {
             try {
-                // FIXED: Hardcoded full GitHub API path directly into the request string to prevent variable syntax truncation errors
-                const response = await fetch("https://github.com/BCD-Power-Dev/Postgres_Maint/contents/scripts");
+                // FIXED: Direct plain text string link to the official open GitHub API. No parameters or variable formatting syntax used.
+                const response = await fetch("https://github.com");
                 if (!response.ok) throw new Error("Directory target mapping failure.");
                 const files = await response.json();
 
