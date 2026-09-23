@@ -1,0 +1,19 @@
+-- duplicates in staging
+SELECT smid, COUNT(*)
+FROM public.smid_staging
+GROUP BY smid
+HAVING COUNT(*) > 1;
+
+-- staging not in production
+SELECT s.smid
+FROM public.smid_staging s
+LEFT JOIN public.smid t
+    ON t.smid = s.smid
+WHERE t.smid IS NULL;
+
+-- production not in staging
+SELECT t.smid
+FROM public.smid t
+LEFT JOIN public.smid_staging s
+    ON s.smid = t.smid
+WHERE s.smid IS NULL;
