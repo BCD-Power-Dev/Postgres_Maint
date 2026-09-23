@@ -1,0 +1,10 @@
+SELECT s.*
+FROM public.smid_staging s
+JOIN (
+    SELECT smid
+    FROM public.smid_staging
+    GROUP BY smid
+    HAVING COUNT(*) > 1
+) d
+    ON d.smid = s.smid
+ORDER BY s.smid;
